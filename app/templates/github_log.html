@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .container {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar a {
+            color: #fff;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .sidebar a:hover {
+            color: #ffd700;
+        }
+
+        .content {
+            flex: 1;
+            padding: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+    </style>
+    <style>
+        /* Style for list items */
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 8px;
+            padding: 8px;
+            background-color: #f9f9f9;
+            /* Default background color */
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Background color for list items when active */
+        li.active {
+            background-color: #ffd700;
+            /* Yellow background color */
+        }
+
+        /* Style for anchor tags */
+        li a {
+            text-decoration: none;
+            color: black;
+        }
+    </style>
+
+    <script src="https://cdn.lordicon.com/lordicon.js"></script>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div style="display: flex; flex-direction: row; align-items: center; justify-content: flex-start; ">
+                <lord-icon src="https://cdn.lordicon.com/dafdkyyt.json" trigger="loop" delay="500"
+                    style="width:50px;height:50px; margin-right: 10px;" colors="primary:#ffd700">
+                </lord-icon>
+                <h2>Github Log</h2>
+            </div>
+            <ul>
+                <li id="allRequestsItem" class="selected"><a href="#" style="color: black;"
+                        onclick="showRequests('all')">All Requests</a></li>
+                <li id="pullRequestsItem"><a href="#" style="color: black;" onclick="showRequests('pull')">Pull
+                        Requests</a></li>
+                <li id="pushRequestsItem"><a href="#" style="color: black;" onclick="showRequests('push')">Push
+                        Requests</a></li>
+                <li id="mergeRequestsItem"><a href="#" style="color: black;" onclick="showRequests('merge')">Merge
+                        Requests</a></li>
+            </ul>
+
+        </div>
+        <div class="content">
+            <table id="requestsTable">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Count</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Group for All Requests -->
+                <tbody id="allRequestsGroup">
+                    <tr id="allRequests">
+                        <td>All Requests</td>
+                        <td>0</td> <!-- Initial count set to 0 -->
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <ul id="allRequestsList" style="overflow-y: scroll; height: 77vh;">
+                                <!-- List items for all requests will be dynamically generated here -->
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+
+                <!-- Group for Pull Requests -->
+                <tbody id="pullRequestsGroup" style="display: none;">
+                    <tr id="pullRequests">
+                        <td>Pull Requests</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <ul id="pullRequestsList" style="overflow-y: scroll; height: 77vh;">
+                                <!-- List items for pull requests will be dynamically generated here -->
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+
+                <!-- Group for Push Requests -->
+                <tbody id="pushRequestsGroup" style="display: none;">
+                    <tr id="pushRequests">
+                        <td>Push Requests</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <ul id="pushRequestsList" style="overflow-y: scroll; height: 77vh;">
+                                <!-- List items for push requests will be dynamically generated here -->
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+
+                <!-- Group for Merge Requests -->
+                <tbody id="mergeRequestsGroup" style="display: none;">
+                    <tr id="mergeRequests">
+                        <td>Merge Requests</td>
+                        <td>0</td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <ul id="mergeRequestsList" style="overflow-y: scroll; height: 77vh;">
+                                <!-- List items for merge requests will be dynamically generated here -->
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+                </tbody>
+
+
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Function to update the counts and display filtered data
+        function updateCounts(data) {
+            let totalCount = 0;
+            let pullRequests = [];
+            let pushRequests = [];
+            let mergeRequests = [];
+
+            // Iterate over the data and filter each type of request
+            data.forEach(item => {
+                switch (item.action) {
+                    case "PULL_REQUEST":
+                        pullRequests.push(`${item.author} submitted a pull request from "${item.from_branch}" to "${item.to_branch}" on ${item.timestamp}`);
+                        break;
+                    case "PUSH_REQUEST":
+                        pushRequests.push(`${item.author} pushed to "${item.to_branch}" on ${item.timestamp}`);
+                        break;
+                    case "MERGE_REQUEST":
+                        mergeRequests.push(`${item.author} merged branch "${item.from_branch}" to "${item.to_branch}" on ${item.timestamp}`);
+                        break;
+                    default:
+                        break;
+                }
+                totalCount++;
+            });
+
+            // Update the counts in the table
+            document.getElementById('allRequests').getElementsByTagName('td')[1].textContent = totalCount;
+            document.getElementById('pullRequests').getElementsByTagName('td')[1].textContent = pullRequests.length;
+            document.getElementById('pushRequests').getElementsByTagName('td')[1].textContent = pushRequests.length;
+            document.getElementById('mergeRequests').getElementsByTagName('td')[1].textContent = mergeRequests.length;
+
+            // Update the lists for each type of request
+            updateList('allRequestsList', pullRequests.concat(pushRequests, mergeRequests));
+            updateList('pullRequestsList', pullRequests);
+            updateList('pushRequestsList', pushRequests);
+            updateList('mergeRequestsList', mergeRequests);
+        }
+
+        // Function to update the list items for a specific type of request
+        function updateList(listId, requests) {
+    const listElement = document.getElementById(listId);
+    listElement.innerHTML = ''; // Clear previous list items
+
+    // Generate list items in reverse order and prepend them
+    for (let i = 0; i < requests.length; i++) {
+        const listItem = document.createElement('li');
+        listItem.textContent = requests[i];
+        listElement.prepend(listItem);
+    }
+
+    // Display "No requests" message if there are no requests
+    if (requests.length === 0) {
+        const noRequestsItem = document.createElement('li');
+        noRequestsItem.textContent = 'No requests';
+        listElement.appendChild(noRequestsItem);
+    }
+}
+        // Function to fetch data from the API and update counts
+        function fetchDataAndUpdateCounts() {
+            fetch('/webhook/fetch_data')
+                .then(response => response.json())
+                .then(data => {
+                    // Save the data locally
+                    localStorage.setItem('dashboardData', JSON.stringify(data));
+                    // Update the counts based on the retrieved data
+                    updateCounts(data);
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                    // Display an error message on the dashboard
+                    document.getElementById('error').textContent = 'Error fetching data. Please try again.';
+                });
+        }
+
+        // Function to initialize the dashboard
+        function initializeDashboard() {
+            // Check if there's existing data in local storage
+            const storedData = localStorage.getItem('dashboardData');
+            if (storedData) {
+                // Update the counts using the stored data
+                const parsedData = JSON.parse(storedData);
+                updateCounts(parsedData);
+            }
+        }
+
+        // Call the function to initialize the dashboard
+        initializeDashboard();
+
+        // Set interval to fetch data and update counts every 15 seconds
+        setInterval(fetchDataAndUpdateCounts, 15000);
+
+        function showRequests(type) {
+            // Remove 'active' class from all list items
+            document.querySelectorAll('li').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // Add 'active' class to the selected list item
+            document.getElementById(type + 'RequestsItem').classList.add('active');
+
+            // Hide all request groups
+            document.getElementById('allRequestsGroup').style.display = 'none';
+            document.getElementById('pullRequestsGroup').style.display = 'none';
+            document.getElementById('pushRequestsGroup').style.display = 'none';
+            document.getElementById('mergeRequestsGroup').style.display = 'none';
+
+            // Show the selected request group
+            document.getElementById(type + 'RequestsGroup').style.display = 'table-row-group';
+        }
+
+    </script>
+</body>
+
+</html>
