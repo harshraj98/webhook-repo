@@ -22,6 +22,12 @@ def save_to_mongodb(request_id, author, action, from_branch, to_branch, timestam
 # @webhook.route('/', methods=['GET'])
 # def home():
 #     return jsonify({'message': 'Event data saved successfully'}), 200
+def add_ordinal_suffix(day):
+    if 10 <= day % 100 <= 20:
+        suffix = 'th'
+    else:
+        suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
+    return f"{day}{suffix}"
 
 
 @webhook.route('/receiver', methods=['POST'])
@@ -46,9 +52,10 @@ def github_webhook():
                 author = data["pull_request"]["merged_by"]["login"]
                 from_branch = data["pull_request"]["head"]["ref"]
                 to_branch = data["pull_request"]["base"]["ref"]
-                timestamp = data["pull_request"]["merged_at"]
-                timestamp_dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
-                timestamp_formatted = timestamp_dt.strftime("%d %b %Y - %I:%M %p %Z")
+                timestamp = data["head_commit"]["timestamp"]
+                timestamp_dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S%z")
+                day_with_suffix = add_ordinal_suffix(timestamp_dt.day)
+                timestamp_formatted = timestamp_dt.strftime(f"{day_with_suffix} %B %Y - %I:%M %p %Z")
                 action = "MERGE_REQUEST"
                 output = f"{author} merged branch \"{from_branch}\" to \"{to_branch}\" on {timestamp_formatted}"
             else:
@@ -57,9 +64,10 @@ def github_webhook():
                 author = data["pull_request"]["user"]["login"]
                 from_branch = data["pull_request"]["head"]["ref"]
                 to_branch = data["pull_request"]["base"]["ref"]
-                timestamp = data["pull_request"]["created_at"]
-                timestamp_dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%SZ")
-                timestamp_formatted = timestamp_dt.strftime("%d %b %Y - %I:%M %p %Z")
+                timestamp = data["head_commit"]["timestamp"]
+                timestamp_dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S%z")
+                day_with_suffix = add_ordinal_suffix(timestamp_dt.day)
+                timestamp_formatted = timestamp_dt.strftime(f"{day_with_suffix} %B %Y - %I:%M %p %Z")
                 action = "PULL_REQUEST"
                 output = f"{author} submitted a pull request from \"{from_branch}\" to \"{to_branch}\" on {timestamp_formatted}"
 
@@ -70,7 +78,8 @@ def github_webhook():
             to_branch = data["ref"].split("/")[-1]
             timestamp = data["head_commit"]["timestamp"]
             timestamp_dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S%z")
-            timestamp_formatted = timestamp_dt.strftime("%d %b %Y - %I:%M %p")
+            day_with_suffix = add_ordinal_suffix(timestamp_dt.day)
+            timestamp_formatted = timestamp_dt.strftime(f"{day_with_suffix} %B %Y - %I:%M %p %Z")
             action = "PUSH_REQUEST"
             output = f"{author} pushed to {to_branch} on {timestamp_formatted}"
 

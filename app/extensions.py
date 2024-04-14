@@ -7,7 +7,7 @@ app = Flask(__name__)
 CORS(app)  # Enable CORS
 
 # MongoDB configuration
-MONGO_URI = 'mongodb://localhost:27017/'
+MONGO_URI = 'mongodb+srv://harshrajaeie24:newnew@cluster0.sszlr2n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'
 DB_NAME = 'github_events'
 COLLECTION_NAME = 'events'
 
@@ -15,4 +15,3 @@ COLLECTION_NAME = 'events'
 client = MongoClient(MONGO_URI)
 db = client[DB_NAME]
 collection = db[COLLECTION_NAME]
-

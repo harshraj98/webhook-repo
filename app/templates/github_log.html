@@ -249,23 +249,26 @@
 
         // Function to update the list items for a specific type of request
         function updateList(listId, requests) {
-    const listElement = document.getElementById(listId);
-    listElement.innerHTML = ''; // Clear previous list items
+            const listElement = document.getElementById(listId);
+            listElement.innerHTML = ''; // Clear previous list items
 
-    // Generate list items in reverse order and prepend them
-    for (let i = 0; i < requests.length; i++) {
-        const listItem = document.createElement('li');
-        listItem.textContent = requests[i];
-        listElement.prepend(listItem);
-    }
+            // Generate list items in reverse order and prepend them
+            for (let i = 0; i < requests.length; i++) {
+                const listItem = document.createElement('li');
+                listItem.textContent = requests[i];
+                listElement.prepend(listItem);
+            }
 
-    // Display "No requests" message if there are no requests
-    if (requests.length === 0) {
-        const noRequestsItem = document.createElement('li');
-        noRequestsItem.textContent = 'No requests';
-        listElement.appendChild(noRequestsItem);
-    }
-}
+            // Display "No requests" message if there are no requests
+            if (requests.length === 0) {
+                const noRequestsItem = document.createElement('li');
+                noRequestsItem.textContent = 'No requests';
+                listElement.appendChild(noRequestsItem);
+            }
+        }
+
+
+
         // Function to fetch data from the API and update counts
         function fetchDataAndUpdateCounts() {
             fetch('/webhook/fetch_data')
@@ -282,6 +285,9 @@
                     document.getElementById('error').textContent = 'Error fetching data. Please try again.';
                 });
         }
+
+
+
 
         // Function to initialize the dashboard
         function initializeDashboard() {
