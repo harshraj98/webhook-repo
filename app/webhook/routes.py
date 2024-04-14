@@ -52,7 +52,7 @@ def github_webhook():
                 author = data["pull_request"]["merged_by"]["login"]
                 from_branch = data["pull_request"]["head"]["ref"]
                 to_branch = data["pull_request"]["base"]["ref"]
-                timestamp = data["head_commit"]["timestamp"]
+                timestamp = data["pull_request"]["merged_at"]
                 timestamp_dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S%z")
                 day_with_suffix = add_ordinal_suffix(timestamp_dt.day)
                 timestamp_formatted = timestamp_dt.strftime(f"{day_with_suffix} %B %Y - %I:%M %p %Z")
@@ -64,7 +64,7 @@ def github_webhook():
                 author = data["pull_request"]["user"]["login"]
                 from_branch = data["pull_request"]["head"]["ref"]
                 to_branch = data["pull_request"]["base"]["ref"]
-                timestamp = data["head_commit"]["timestamp"]
+                timestamp = data["pull_request"]["created_at"]
                 timestamp_dt = datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S%z")
                 day_with_suffix = add_ordinal_suffix(timestamp_dt.day)
                 timestamp_formatted = timestamp_dt.strftime(f"{day_with_suffix} %B %Y - %I:%M %p %Z")
